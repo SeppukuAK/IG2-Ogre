@@ -1,0 +1,483 @@
+//--------------ENGINE---------------------
+
+-Orientación objetos y namespaces.
+-Diseñado para ser extendido: Clases abstractas, componentes, herencia, polimorfismo,plugins. Amplian funcionalidad sin modificar el código.
+
+//--------------ENGINE---------------------
+
+//--------------OGRE---------------------
+
+-Un motor gráfico es un compendio de gestores:
+	*Gestor del API gráfico : ogre.cfg
+	Gestor de recursos : archivo resources.cfg
+	Tiene todas las texturas y mallas y esa verga
+	*Hay de escena, de log, de plugins,etc.
+	*Son una instancia única (singleton).
+
+-Habla de mierdas de materiales mediante scripts*
+
+-Comunicación mediante listas de observadores(listeners)
+
+-El objeto Ogre::Root* root es el punto de entrada al sistema.
+*Primero en crease y ultimo en destruirse.
+Permite inicializar el sistema e iniciar el bucle de renderizado.
+
+Dibujito guapo de Estructura de Clases
+
+//--------------OGRE---------------------
+
+//--------------RENDERING---------------------
+
+ Ogre::RenderSystem (clase abstracta): interfaz común para
+las diferentes APIs gráficas 3D que subyacen en sus
+implementaciones (OpenGL, Direct3D)
+Habitualmente se utiliza a través del gestor de la escena y root:
+Ogre::RenderSystem* aRS = root -> getRenderSystem();
+
+NO TOCAR PRACTICAMENTE, ES ALGO DE INICIALIZACION
+
+//--------------RENDERING---------------------
+
+
+//--------------Resource Management-------------
+
+El objeto Ogre::ResourceGroupManager (es singleton):
+gestiona los grupos de recursos (p.e.: Essential, General, Tests).
+Cada uno agrupa distintas clases de recursos: Mesh, Texture,
+Material, GPUProgram, Compositor, Font. (archivo resources.cfg)
+Todos los recursos son compartidos.
+Ogre::TextureManager::getSingleton().someMethod()
+Ogre::MeshManager::getSingleton().someMethod()
+
+//--------------Resource Management-------------
+
+//--------------SCENE MANAGEMENT-------------
+
+Ogre::SceneManager: la clase más utilizada en la aplicación.
+Para configurar el grafo de la escena: cámaras, luces, entidades, …
+Actúa de factoría para varios tipos de objetos.
+Puede haber más de una instancia en la aplicación (no es singleton)
+Ogre::Root::createSceneManager(...)
+
+//--------------SCENE MANAGEMENT-------------
+
+//--------------Application skeleton----------
+
+-Se utilizan las utilidades de OGRE Bites:
+OgreApplicationContext
+OgreBitesConfigDialog
+OgreInput
+OgreTrays //GUI
+OgreCameraMan //CAMARA
+
+-MyApplicactionContext: modificación de OgreApplicationContext
+crea a Root, crea la ventana de renderizado, inicia los gestores,…
+Implementa FrameListener e informa de eventos de entrada a los
+observadores (objetos del tipo InputListener *) suscritos.
+
+HolaApp: Hereda de MyApplicationContext e InputListener
+
+Main: lanza el bucle de renderizado
+//--------------Application skeleton----------
+
+//--------------Ogre initialization----------
+
+-OGRE utiliza archivos para:
+ Indicar que plugins se deben cargar: ProyectosOgre/bin/plugins.cfg
+ Indicar donde están los recursos que se van a utilizar: mallas,
+shaders, texturas, materiales (scripts):
+ProyectosOgre/bin/resources.cfg
+Al inicio se analizan los recursos, pero se cargan al ser utilizados.
+Todos son compartidos
+ Guardar información sobre la configuración. Se crea durante la
+primera ejecución. ProyectosOgre/bin/ogre.cfg // (*) 
+ Guardar información sobre la inicialización, carga de recursos,
+posibles errores durante la ejecución, …. Se crea con cada ejecución
+(la información también se muestra en la consola).
+ProyectosOgre/bin/ogre.log
+(*) MisDocumentos/Ogre/nombreProyecto/ogre.log
+
+
+- MyApplicationContext::initApp():
+Crea el root, que contiene todos los enlaces a los resources, plugins, log y ogre.cfg.
+
+- MyApplicationContext::setup():
+Inicializa todo: carga recursos, crea ventana, registra los listener, etc
+
+- mRoot->addFrameListener(this); // El tipo de this es MyApplicationContext*
+this tiene que implementar FrameListener: Metodos
+
+-MyApplicationContext mantiene una lista de observadores
+de eventos de entrada (objetos del tipo InputListener *)
+// std::set<OgreBites::InputListener*> mInputListeners; 
+MyApp define metodos para insertar y remover objetos de la lista
+
+
+-class HolaApp : public MyApplicationContext, public OgreBites::InputListener
+
+ HolaApp:: setup() // método virtual heredado de MyApplicationContext Inicializa cosas de MyApp y implementa la escena, el gui, y añade inputListener necesarios
+ApplicationContext::setup();
+
+ HolaApp:: setupScene():
+Crea camara, luces, viewport y objetos de la escena
+
+ main(): Hace coas de main
+
+ Render Loop: root->startRendering(); 
+ActiveRenderer->_initRenderTargets();
+mQueuedEnd = false;
+// Infinite loop, until broken out of by frame listeners
+// or break out by calling queueEndRendering()
+while( !mQueuedEnd )
+{ //Pump messages in all registered RenderWindow windows
+WindowEventUtilities::messagePump();
+// render the next frame based on the new scene manager state
+mQueuedEnd = renderOneFrame();
+} _fireFrameStarted(); // avisa a los FrameListener registrados
+_updateAllRenderTargets(); // el renderizado (pag. 14)
+_fireFrameEnded(); // avisa a los FrameListener registrados
+
+
+//--------------Ogre initialization----------
+
+//--------------Scene Management----------
+ El grafo de la escena tiene todos los nodos del mismo tipo
+Ogre::SceneNode. La estructura del grafo es ajena a su contenido.
+
+ Un nodo contiene objetos (de la clase abstracta MovableObject) y
+una transformación de modelado común para todos.
+
+ MovableObject se
+implementa en: Light,
+Camera, Entity (subentities)
+
+ SubEntity (malla, material)
+implementa Renderable
+//--------------Scene Management----------
+
+//--------------Rendering----------
+
+ Una entidad está formada por varias subentidades. Cada
+subentidad contiene una referencia a una submalla y una
+referencia a un material. Hay una relación 1:1 entre submallas y
+subentidades.
+
+ Las subentidades son elementos susceptibles de ser renderizados.
+El gestor de la escena forma colas con estos elementos en el
+proceso de renderizado (transparentes, opacos, estáticos)
+
+ RenderTarget: Se puede renderizar directamente en la ventana,
+o en texturas (OpenGL FrameBuffer Objects). Subclases:
+RenderWindow, RenderTexture, MultiRenderTarget
+
+ Cada destino de renderizado (RenderTarget) se puede dividir en
+varios Viewports.
+Cada Viewport, además de sus dimensiones, tiene asociada una
+referencia a una cámara y un orden de renderizado (Z-order para
+posibles superposiciones)
+Viewport* vp = getRenderWindow()->addViewport(puntero a cámara);
+
+ Se puede renderizar en varios RenderTarget. 
+
+- Cada cámara se crea con ungestor de escena y guardauna referencia al gestor quela crea.
+
+Destinos de renderizado:
+RenderWindow conpuertos de vista RenderTexture con puertos de vista 
+Cada Viewport se añade aun RenderTarget indicando la cámara con la que se renderizará
+
+ La aplicación lanza el bucle de renderizado automático con
+root->startRendering(); dentro del cual se llama a
+renderOneFrame() :
+ Llama a RenderSystem::_updateAllRenderTargets()
+ Para todos los RenderTarget activos llama a update()
+ Para todos los Viewport activos llama a update()
+ Para su Cámara, llama a _renderScene()
+ Para su SceneManager, llama a _renderScene()
+ Avisa a los FrameListener suscritos, antes y después de
+renderOneFrame()
+ Intercambia el buffer trasero y delantero
+
+//--------------Rendering----------
+
+//--------------Scene Management----------
+
+- Se encarga de:
+ Crear los nodos de la escena: createChildSceneNode()
+ Crear objetos (métodos factoría), luces, cámaras, entidades
+(MovableObject) y ponerlos en el grafo de la escena
+ Gestionar preguntas sobre la escena
+ Detectar objetos no visibles (culling) y añadir los visibles a la
+cola de Rendereable para renderizarlos
+ Gestionar sombras y luces
+
+-Se pueden crear varios objetos SceneManager de la misma o
+diferentes subclases:
+ Plugin BspSceneManager (Binary Space Partition): indoor
+ Plugin OctreeSceneManager: OctreeSceneManager (generic) y
+TerrainSceneManager
+
+ Oreg::SceneTypes: ST_GENERIC, ST_INTERIOR,
+ST_EXTERIOR_CLOSE, ST_EXTERIOR_FAR
+ Ogre::SceneManager* scnMgr = mRoot ->
+createSceneManager(Ogre::ST_GENERIC);
+
+Al utilizar como argumento un Ogre::SceneType, automáticamente
+Ogre buscará el tipo más apropiado.
+Al utilizar un método factoría para crearlo, se destruirá
+automáticamente al destruirse root.
+//--------------Scene Management----------
+
+//--------------Spatial Transforms----------
+
+En Ogre podemos especificar las transformaciones de modelado (de los
+nodos de la escena) en
+World space (TS_WORLD): relativo al sistema de coordenadas
+global (relativo al nodo raíz).
+ Parent space (TS_PARENT): relativo al padre del nodo de la
+escena
+ Local space (TS_LOCAL): relativo al nodo de la escena
+Lo más habitual es realizar las traslaciones relativas al padre, y los
+giros y escalas en el espacio local (por defecto en Ogre).
+ Las coordenadas de los vértices nunca cambian, siempre están en el
+espacio del objeto
+
+sceneNode->translate(100.0, 10.0, 0.0); // TS_PARENT
+sceneNode->translate(100.0, 10.0, 0.0, TS_WORLD);
+sceneNode->translate(0.0, 0.0, 100.0, TS_LOCAL);
+sceneNode->yaw(Ogre::Radian(1.0)); // TS_LOCAL rotate around object's own Y axis
+sceneNode->pitch(Ogre::Radian(1.0), TS_PARENT); // rotate around parent's X axis
+sceneNode->roll(Ogre::Radian(Degree(57)), TS_WORLD); // rotate around world Z axis
+sceneNode->scale(2.0, 1.0, 1.0); // scale along the X axis by a factor of two.
+
+ Cada tipo de transformación se guarda por separado: posición,
+rotación y escala. No se realizan sobre la matriz de modelado.
+ Cuando se renderiza la escena, se genera la matriz de cada nodo, a
+partir de las tres partes y el grafo
+ Se puede especificar si queremos que cierto tipo de trasformación no
+se vea afectada por la del nodo padre.
+sceneNode-> setInheritOrientation (bool inherit);
+// default true: this node's orientation will be affected by its parent's orientation
+sceneNode-> setInheritScale (bool inherit);
+// default true: this node's scale will be affected by its parent's scale
+
+//--------------Spatial Transforms----------
+
+//--------------LIGHT---------
+
+ La clase Light hereda de MovableObject.
+Las fuentes de luz las crea el gestor de la escena.
+Light* light = scnMgr->createLight("MyLight");
+light->setDirection(Ogre::Vector3::NEGATIVE_UNIT_Z); // (*)
+// OpenGL <-> dirección a la fuente de luz
+lightNode->attachObject(light);
+scnMgr->setAmbientLight(ColourValue); // Luz ambiente de la escena
+En la nueva versión de Ogre, las fuentes de luz se tiene que integrar en
+el grafo de la escena (adjuntar a un nodo del grafo).
+Además, por compatibilidad, hay que realizar el ajuste (*).
+ Tenemos tres tipos de fuentes de luz (LightTypes):
+LT_POINT, LT_DIRECTIONAL, LT_SPOTLIGHT
+
+ Métodos heredados de MovableObject: light->setVisible(bool)
+ Configuración a nivel de nodo
+lightNode-> setDirection(Vec3);
+lightNode -> setPosition(Vec3);
+lightNode -> setSpecularColour(ColourValue)
+ Configuración a nivel de luz
+light-> setType(LightTypes);
+light-> setDiffuseColour(ColourValue);
+light-> setSpecularColour(ColourValue);
+light-> setAttenuation(…);
+light-> setCastShadows(bool); 
+
+ Spot light cone effect:
+spotLight->setSpotlightRange(innerAngle, outerAngle, falloff=1.0);
+The inner cone applicable only to Direct3D, it'll always treat as
+zero in OpenGL.
+The rate of falloff
+between the inner and
+outer cones.
+falloff=1.0 means a
+linear falloff, less means
+slower falloff, higher
+means faster falloff.
+
+//--------------LIGHT----------
+
+//--------------CAMERA-------------
+
+ La clase Camera hereda de Frustum y esta de MovableObject.
+Las cámaras las crea el gestor de la escena.
+Camera* cam = scnMgr->createCamera("MyCam");
+camNode->attachObject(cam);
+En la nueva versión de Ogre, las cámaras se tiene que adjuntar a
+un nodo del grafo de la escena
+ Tenemos dos tipos de proyección (ProjectionType):
+PT_ORTHOGRAPHIC, PT_PERSPECTIVE
+setProjectionType(ProjectionType);
+ Configuración a nivel de frustrum
+setAspectRatio, setAutoAspectratio, setFOVy,
+setNearClipDistance, setfarClipDistance,
+setOrthoWindow
+
+ Configuración a nivel de nodo
+camNode->setPosition(0, 0, 1000);
+camNode->lookAt(Vector3(0, 0, -1),
+Ogre::Node::TransformSpace::TS_WORLD);
+yaw(), pitch(…), roll(…)
+ Otros
+enableReflection(Plane)
+enableCustomNearClipPlane (Plane)
+setAutoTracking(SceneNode*, …)
+ Viewport
+Viewport *vp = window->addViewport(cam);
+vp->setBackgroundColour(ColourValue(0, 0, 0));
+vp->setDimensions (Real left, Real top, Real width, Real height)
+
+//--------------CAMERA-------------
+
+//--------------SCENE QUERIES-------------
+
+ Ray queries (raycast): dado un rayo, ¿Qué objetos atraviesa?
+ Sphere queries: dada una esfera, ¿Qué objetos están dentro?
+ Bounding-box queries: dada una AABB (Axis-Aligned BoundingBox,
+caja alineada con los ejes), ¿Qué objetos están dentro?
+ Bounding-plane queries: dado un volumen a partir de un
+conjunto de planos, ¿Qué objetos están dentro?
+ Intersection queries: ¿Qué objetos están suficientemente cerca
+(podrían chocar)?
+ Todas estas preguntas se configuran (setQueryTypeMask,
+setQueryFlags) para limitar los objetos de interés.
+ Las entidades tienen un AABB (dado por dos puntos en diagonal)
+y el radio de la esfera. Sus valores se guardan en el archivo
+.mesh. Podemos mostrar el AABB con showBoundingBox(true);
+
+
+ Añadimos un atributo
+TIPOSceneQuery* scnQuery = nullptr;
+TIPO: Ray, AxisAlignedBox, Intersection, PlaneBoundedVolumeList
+ Lo creamos y configuramos filtros
+scnQuery = scnMgr -> createTIPOQuery(…);
+// ¿Qué clase de objetos nos interesan?
+scnQuery-> setQueryTypeMask(mask);
+scnQuery-> setQueryMask(uint32 mask);
+ Lo ejecutamos y gestionamos el resultado
+TIPOSceneQueryResult& qryResult = scnQuery-> execute();
+TIPOSceneQueryResult ::iterator it = qryResult.begin();
+ Para destruir la pregunta: scnMgr->destroyQuery(scnQuery);
+
+ Ray queries (raycasting): Ray(Vec3 origin, Vec3 direction)
+RaySceneQuery * rayScnQuery = nullptr;
+ raySceneQuery = scnMgr -> createRayQuery( Ray() );
+// Filtros: configuramos la clase de objetos que nos interesan
+raySceneQuery -> setQueryTypeMask(mask);
+// podemos especificar objetos concretos
+raySceneQuery -> setQueryMask(mask);
+// podemos ordenar los resultados por la distancia
+raySceneQuery -> setSortByDistance(true);
+ RaySceneQueryResult& qryResult = rayScnQuery -> execute();
+RaySceneQueryResult::iterator it = qryResult.begin();
+… (it != qryResult.end())
+
+ RaySceneQueryResult: una lista, cada elemento con tres datos
+distance // al origen del rayo (orden)
+movable // -> MovableObject o null si es WorldFragment
+worldFragment // -> WorldFragment o null si es MovableObject
+ SceneQueryResult: dos listas
+movables (MovableObject: Entity, Light, Camera, …)
+worldFragments -> WorldFragmentType : WFT_NONE,
+FT_PLANE_BOUNDED_REGION, WFT_SINGLE_INTERSECTION,
+WFT_CUSTOM_GEOMETRY, WFT_RENDER_OPERATION
+ IntersectionSceneQueryResult: dos listas
+movables2movables
+Movables2world
+
+//--------------SCENE QUERIES-------------
+
+//--------------SELECCION-------------
+
+ Para seleccionar un objeto cualquiera de una escena 3D:
+
+Podemos generar un rayo, que parta del ojo de la cámara y pase
+por el punto (x, y) del plano de vista seleccionado, y obtener el
+objeto más cercano con el que colisiona (ray cast).
+
+//--------------SELECCION-------------
+
+//--------------EJEMPLO-------------
+
+ Mouse picking (World space to screen space)
+mousePressed(const OgreBites::MouseButtonEvent & evt) {
+rayScnQuery ->setRay(cam->getCameraToViewportRay(
+evt.x / (Real)mWindow->getViewport(0)->getActualWidth(),
+evt.y / (Real)cam->getViewport() ->getActualHeight()));
+// coordenadas normalizadas en [0,1]
+RaySceneQueryResult& qryResult = rayScnQuery ->execute();
+RaySceneQueryResult::iterator it = qryResult.begin();
+while (it != qryResult.end() && …) {
+if ( it->movable->getName() == "entObject")
+it->movable->getParentSceneNode()->translate(10,10,10);
+++it;
+} … }
+
+ Filtros
+Añadimos atributos a la clase para marcar los objetos:
+static const Ogre::uint32 MY_QUERY_MASK = 1; // << 0;
+static const Ogre::uint32 0_QUERY_MASK = 0;
+Configuramos las entidades con las marcas (flags)
+ent->setQueryFlags(MY_QUERY_MASK);
+ent->addQueryFlags(0_QUERY_MASK); // |= 0_QUERY_MASK
+Configuramos la pregunta con los filtros: al ejecutarse la pregunta
+solo se procesan los objetos que cumplen FLAGS & MASK != 0
+raySceneQuery ->
+setQueryTypeMask(SceneManager::ENTITY_TYPE_MASK);
+raySceneQuery -> setQueryMask(MY_QUERY_MASK);
+raySceneQuery -> setSortByDistance(true);
+En lugar del bucle: if (it != qryResult.end()) { … }
+
+//--------------EJEMPLO-------------
+
+//--------------Scene Queries Masks-------------
+
+ENTIENDO QUE TODO ESTO ES UNA PREGUNTA QUE SE HACE DENTRO LOS QUERIES 
+
+ Bitwise operators (bit a bit): <<, &, |, ~, >>, ^
+const Ogre::uint32
+NPC_MASK = 1 << 0, // 0000 0000 0000 0001
+ENEMY_MASK = 1 << 1, // 0000 0000 0000 0010
+ITEM_MASK = 1 << 2, // 0000 0000 0000 0100
+NONHOSTILE_MASK = NPC_MASK | ITEM_MASK ;
+NPC_MASK | ITEM_MASK = 0101
+ITEM_MASK & ENEMY_MASK = 0000
+~ ENEMY_MASK = 1111 1111 1111 1101
+~ 0 = 1111 1111 1111 1111
+if ( FLAGS & MASK != 0 ) // -> al menos un 1 en la misma posición
+ SceneManager::ENTITY_TYPE_MASK, ::LIGHT_TYPE_MASK,
+::FRUSTUM_TYPE_MASK, ::WORLD_GEOMETRY_TYPE_MASK,
+::STATICGEOMETRY_TYPE_MASK, …
+
+//--------------Scene Queries Masks-------------
+
+HAY UN EJEMPLO DE TERRENOS QUE NO HE HECHO
+
+//--------------User Object Bindings-------------
+
+ UserObjectBindings and Any
+Podemos añadir objetos de clases propias a entidades, nodos, …
+ent-> getUserObjectBindings().setUserAny(
+Any(puntero a un controlador de objeto) );
+Y para utilizarlo:
+TipoObjeto* pObj = any_cast<TipoObjeto*>(ent ->
+getUserObjectBindings().getUserAny());
+pObj->metodo(evt); // método de la clase TipoObjeto
+ Para poder trabajar con objetos polimórficos vamos a utilizar una
+clase recubridora con un método para acceder al controlador:
+pObj -> getControl() -> metodo(evt)
+
+//--------------User Object Bindings-------------
+
+LOS RAYOS DEBERIAN ESTAR EN LOS PROPIOS OBJETOS???
+LA VENTANA FUE CAMBIADA POR LA CAMARA EN PANELMAN+
+LAS PUTAS LUCECITAS
+SUPONGO QUE LO DE MOSTRAR LA CAJA ESTÁ EN SINBAD EN MOUSEPICKING
+EL ITERADOR DE ++IT QUE HACE AHÍ
+QUEDA MATERIALES Y ANIMACIÓN
