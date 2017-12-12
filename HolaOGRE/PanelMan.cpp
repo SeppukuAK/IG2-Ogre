@@ -23,7 +23,8 @@ namespace OgreBites
 		//Material por defecto es Blanco
 
 		//Añadimos textura al material del panel
-		entPlano->getSubEntity(0)->getMaterial()->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
+		//entPlano->getSubEntity(0)->getMaterial()->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
+		entPlano->getSubEntity(0)->setMaterialName("panel", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		setObjMan(entPlano);
 
