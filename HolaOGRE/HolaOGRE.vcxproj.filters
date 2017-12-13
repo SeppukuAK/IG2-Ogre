@@ -39,6 +39,9 @@
     <ClCompile Include="Sinbad.cpp">
       <Filter>Archivos de código fuente\Objetos</Filter>
     </ClCompile>
+    <ClCompile Include="FlotadorMan.cpp">
+      <Filter>Archivos de código fuente\Objetos</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HolaApp.h">
@@ -54,6 +57,9 @@
       <Filter>Archivos de encabezado\Objetos</Filter>
     </ClInclude>
     <ClInclude Include="Sinbad.h">
+      <Filter>Archivos de encabezado\Objetos</Filter>
+    </ClInclude>
+    <ClInclude Include="FlotadorMan.h">
       <Filter>Archivos de encabezado\Objetos</Filter>
     </ClInclude>
   </ItemGroup>

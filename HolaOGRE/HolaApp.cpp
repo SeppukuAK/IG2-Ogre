@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Sinbad.h"
 #include "PanelMan.h"
+#include "FlotadorMan.h"
 using namespace Ogre;
 
 void HolaApp::frameRendered(const FrameEvent &  evt)
@@ -207,12 +208,14 @@ void HolaApp::createObjects()
 	createSinbad();
 	
 	createMirror();
+
+	createFlotador();
 }
 
 void HolaApp::createSinbad()
 {
 	SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode("nSinbad");
-	Vector3 pos(0,0,25);
+	Vector3 pos(0,25,0);
 	OgreBites::Sinbad* aux = new OgreBites::Sinbad(node, pos);
 
 	vecObjMan.push_back(aux);
@@ -229,6 +232,15 @@ void HolaApp::createMirror()
 	SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode("nPanel");
 	Vector3 pos(0, 0, 0);
 	OgreBites::PanelMan * aux = new OgreBites::PanelMan(node, pos);
+
+	vecObjMan.push_back(aux);
+}
+
+void HolaApp::createFlotador()
+{
+	SceneNode * nodeKnot = scnMgr->getRootSceneNode()->createChildSceneNode("nKnot");
+	Vector3 pos(0, 0, 0);
+	OgreBites::FlotadorMan * aux = new OgreBites::FlotadorMan(nodeKnot, pos);
 
 	vecObjMan.push_back(aux);
 }

@@ -9,6 +9,8 @@ namespace OgreBites
 	{
 		scnMgr = node->getCreator();
 
+		node->rotate(Ogre::Vector3(-1, 0, 0), Ogre::Radian(Ogre::Degree(90.0f)));
+
 		//-------PANEL: malla rectangular con textura ---------
 		//MeshManager es una clase de instancia unica
 		MeshPtr plane = MeshManager::getSingleton().createPlane("mFondo",
@@ -43,8 +45,8 @@ namespace OgreBites
 		scnMgr->getSceneNode("nCam")->attachObject(camRef);
 
 		//Configuramos el plano sobre el que se quiere el reflejo
-		camRef->enableReflection(Plane(Vector3::UNIT_Z, 0));
-		camRef->enableCustomNearClipPlane(Plane(Vector3::UNIT_Z, 0));
+		camRef->enableReflection(Plane(Vector3::UNIT_Y, 0));
+		camRef->enableCustomNearClipPlane(Plane(Vector3::UNIT_Y, 0));
 		//---------CAMARA DEL REFLEJO---------
 
 

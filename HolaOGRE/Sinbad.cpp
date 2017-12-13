@@ -1,5 +1,7 @@
 #include "Sinbad.h"
 
+using namespace Ogre;
+
 namespace OgreBites {
 
 	Sinbad::Sinbad(Ogre::SceneNode* nod, Ogre::Vector3 pos) : ObjectMan(nod,pos)
@@ -46,7 +48,6 @@ namespace OgreBites {
 			auto s = it->first;
 			++it;
 		}
-
 	}
 
 

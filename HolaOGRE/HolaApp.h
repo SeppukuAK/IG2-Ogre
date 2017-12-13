@@ -56,6 +56,8 @@ protected:
   void createSinbad();
   void createMirror();
   void createQueries();
+  void createFlotador();
+
 
 };
 
