@@ -239,8 +239,11 @@ void HolaApp::createMirror()
 void HolaApp::createFlotador()
 {
 	SceneNode * nodeKnot = scnMgr->getRootSceneNode()->createChildSceneNode("nKnot");
-	Vector3 pos(0, 0, 0);
+	nodeKnot->scale(10, 10, 10);
+
+	Vector3 pos(3, 0, 0);
 	OgreBites::FlotadorMan * aux = new OgreBites::FlotadorMan(nodeKnot, pos);
+
 
 	vecObjMan.push_back(aux);
 }

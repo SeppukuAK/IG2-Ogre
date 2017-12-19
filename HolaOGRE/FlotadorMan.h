@@ -11,17 +11,15 @@ namespace OgreBites
 		~FlotadorMan();
 
 		virtual void frameRendered(const Ogre::FrameEvent & evt) {
-
+			animationState->addTime(evt.timeSinceLastFrame);
 		};
-
 
 	private:
 		Ogre::Entity* ent;
 		Ogre::Animation * animation;
 		Ogre::NodeAnimationTrack * track;
-
+		Ogre::AnimationState * animationState;
 		float duracion;
-
 	};
 
 }
