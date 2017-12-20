@@ -19,16 +19,29 @@ namespace OgreBites {
 
 		//animacion
 		//RunBase, RunTop, IdleTop, IdleBase
+		espadasSacadas = false;
 		
 		animRunBase = ent->getAnimationState("RunBase");
 		animRunBase->setLoop(true);
 		animRunBase->setEnabled(true);
 		
+
 		animRunTop = ent->getAnimationState("RunTop");
 		animRunTop->setLoop(true);
 		animRunTop->setEnabled(true);
-		
-		
+	
+		animSacarEspadas = ent->getAnimationState("DrawSwords");
+		animSacarEspadas->setLoop(false);
+		animSacarEspadas->setEnabled(false);
+
+		animCerrarManitas = ent->getAnimationState("HandsClosed");
+		animCerrarManitas->setLoop(false);
+		animCerrarManitas->setEnabled(false);
+
+		animAbrirManitas = ent->getAnimationState("HandsRelaxed");
+		animAbrirManitas->setLoop(false);
+		animAbrirManitas->setEnabled(true);	
+
 		//Espadas
 		espadaEnt1 = node->getCreator()->createEntity("entEspada1", "Sword.mesh");
 		espadaEnt2 = node->getCreator()->createEntity("entEspada2", "Sword.mesh");
@@ -72,10 +85,30 @@ namespace OgreBites {
 
 		if (key == 'q')
 		{
-			//node->getAttachedObject(0)->detachObjectFromBone(espadaEnt2);
-			ent->detachObjectFromBone(espadaEnt1);
-			ent->detachObjectFromBone(espadaEnt2);
+			if (!espadasSacadas)
+			{
+				animRunTop->setEnabled(false);
+				animSacarEspadas->setEnabled(true);
+				animCerrarManitas->setEnabled(true);
+				//node->getAttachedObject(0)->detachObjectFromBone(espadaEnt2);
+				ent->detachObjectFromBone(espadaEnt1);
+				ent->detachObjectFromBone(espadaEnt2);
+				ent->attachObjectToBone("Handle.L", espadaEnt1);
+				ent->attachObjectToBone("Handle.R", espadaEnt2);
 
+				espadasSacadas = true;
+			}
+			else
+			{
+
+
+				ent->detachObjectFromBone(espadaEnt1);
+				ent->detachObjectFromBone(espadaEnt2);
+				ent->attachObjectToBone("Sheath.L", espadaEnt1);
+				ent->attachObjectToBone("Sheath.R", espadaEnt2);
+
+				espadasSacadas = false;
+			}
 		}
 
 		return InputListener::keyPressed(evt);

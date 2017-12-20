@@ -61,13 +61,13 @@ namespace OgreBites
 			0, PF_R8G8B8, TU_RENDERTARGET);
 
 		//Añadimos un puerto de vista al Render Target con la nueva cam
-		RenderTexture* renderTexture = rttTex->getBuffer()->getRenderTarget();
+		renderTexture = rttTex->getBuffer()->getRenderTarget();
 		Viewport* vpText = renderTexture->addViewport(camRef);
 		vpText->setClearEveryFrame(true);
 		vpText->setBackgroundColour(ColourValue::Black);
 
 		//Añadimos la nueva unidad de textura al material del panel
-		TextureUnitState* t = entPlano->getSubEntity(0)->getMaterial()->
+		TextureUnitState*t = entPlano->getSubEntity(0)->getMaterial()->
 			getTechnique(0)->getPass(0)->
 			createTextureUnitState("texRtt");
 		t->setColourOperation(LBO_ADD); // backgroundColour -> black
@@ -85,6 +85,7 @@ namespace OgreBites
 
 	PanelMan::~PanelMan()
 	{
+		renderTexture->removeListener(this);
 	}
 
 	// ocultar el panel y poner luz ambiente

@@ -57,8 +57,6 @@ protected:
   void createMirror();
   void createQueries();
   void createFlotador();
-
-
 };
 
 

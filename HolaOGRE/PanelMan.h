@@ -16,6 +16,7 @@ namespace OgreBites
 		virtual void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);// restablecer los cambios
 	private:
 		Ogre::SceneManager* scnMgr;
+		Ogre::RenderTexture* renderTexture;
 	};
 
 }
