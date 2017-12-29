@@ -10,14 +10,15 @@ namespace OgreBites
 		scnMgr = node->getCreator();
 
 		node->rotate(Ogre::Vector3(-1, 0, 0), Ogre::Radian(Ogre::Degree(90.0f)));
+		node->scale(0.2f,0.2f, 0.2f);
 
 		//-------PANEL: malla rectangular con textura ---------
 		//MeshManager es una clase de instancia unica
 		MeshPtr plane = MeshManager::getSingleton().createPlane("mFondo",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			Plane(Vector3::UNIT_Z, 0),
-			(Real)scnMgr->getCamera("Cam")->getViewport()->getActualWidth(), //Antes estaba con mWindow
-			(Real)scnMgr->getCamera("Cam")->getViewport()->getActualHeight(),
+			(Real)800, //Antes estaba con mWindow
+			(Real)800,
 			10, 10, true, 1, 1.0, 1.0, Vector3::UNIT_Y);
 
 		//Creamos la entidad a partir de la malla

@@ -2,7 +2,8 @@
 #include <iostream>
 #include "Sinbad.h"
 #include "PanelMan.h"
-#include "FlotadorMan.h"
+#include "KnotFlyMan.h"
+#include "BombMan.h"
 using namespace Ogre;
 
 void HolaApp::frameRendered(const FrameEvent &  evt)
@@ -32,6 +33,17 @@ bool HolaApp::keyPressed(const OgreBites::KeyboardEvent& evt)
 		  // recorremos la lista de resultados de objetos del tipo MovableObject.
 
   }
+  if (evt.keysym.sym == SDLK_t)
+  {
+	  //Si está apuntando a Sinbad, apunta al root
+	  if (cameraMgr->getTarget()->getName() == "nSinbad")
+		  cameraMgr->setTarget(scnMgr->getRootSceneNode());
+	  else
+		  cameraMgr->setTarget(scnMgr->getEntity("entSinbad")->getParentSceneNode());
+
+  }
+
+
   return true;
 }
 
@@ -209,7 +221,9 @@ void HolaApp::createObjects()
 	
 	createMirror();
 
-	createFlotador();
+	createKnotFly();
+
+	createBomb();
 }
 
 void HolaApp::createSinbad()
@@ -220,9 +234,6 @@ void HolaApp::createSinbad()
 
 	vecObjMan.push_back(aux);
 	addInputListener(aux);
-
-	
-	cameraMgr->setTarget(node);
 }
 
 //Utilizamos un RenderTexture() con un viewport y camara propia.
@@ -230,20 +241,31 @@ void HolaApp::createSinbad()
 void HolaApp::createMirror()
 {
 	SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode("nPanel");
+
 	Vector3 pos(0, 0, 0);
 	OgreBites::PanelMan * aux = new OgreBites::PanelMan(node, pos);
 
 	vecObjMan.push_back(aux);
 }
 
-void HolaApp::createFlotador()
+void HolaApp::createKnotFly()
 {
-	SceneNode * nodeKnot = scnMgr->getRootSceneNode()->createChildSceneNode("nKnot");
-	nodeKnot->scale(10, 10, 10);
+	//Creamos el nodo en referencia a Sinbad
+	SceneNode * nodeKnot = scnMgr->getEntity("entSinbad")->getParentSceneNode()->createChildSceneNode("nKnot");
+	nodeKnot->setInheritOrientation(false);
 
-	Vector3 pos(3, 0, 0);
-	OgreBites::FlotadorMan * aux = new OgreBites::FlotadorMan(nodeKnot, pos);
+	Vector3 pos(0, 5, -1);
+	OgreBites::KnotFlyMan * aux = new OgreBites::KnotFlyMan(nodeKnot, pos);
 
+	vecObjMan.push_back(aux);
+}
+
+void HolaApp::createBomb()
+{
+	SceneNode * nodeKnot = scnMgr->getRootSceneNode()->createChildSceneNode("nBomb");
+
+	Vector3 pos(0, 0, 0);
+	OgreBites::BombMan * aux = new OgreBites::BombMan(nodeKnot, pos);
 
 	vecObjMan.push_back(aux);
 }

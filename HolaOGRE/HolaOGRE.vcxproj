@@ -11,8 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FlotadorMan.cpp" />
+    <ClCompile Include="BombMan.cpp" />
     <ClCompile Include="HolaApp.cpp" />
+    <ClCompile Include="KnotFlyMan.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyApplicationContext.cpp" />
     <ClCompile Include="ObjectMan.cpp" />
@@ -20,8 +21,9 @@
     <ClCompile Include="Sinbad.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FlotadorMan.h" />
+    <ClInclude Include="BombMan.h" />
     <ClInclude Include="HolaApp.h" />
+    <ClInclude Include="KnotFlyMan.h" />
     <ClInclude Include="MyApplicationContext.h" />
     <ClInclude Include="ObjectMan.h" />
     <ClInclude Include="PanelMan.h" />

@@ -1,0 +1,13 @@
+material KnotFly{
+	technique //first technique
+	{
+		pass
+		{
+			texture_unit // Texture unit 0
+			{
+				texture MtlPlat2.jpg
+			}
+		}
+	}
+
+}

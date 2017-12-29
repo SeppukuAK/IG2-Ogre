@@ -1,0 +1,35 @@
+particle_system Smoke
+{ // p. s. attributes
+	material Smoke
+	particle_width 12
+	particle_height 12
+	cull_each false
+	quota 500
+	billboard_type point
+	sorted false
+
+	emitter Point
+	{ // e. attributes
+		angle 35
+		emission_rate 15
+		time_to_live 1
+		direction 0 1 0
+		velocity_min 50
+		velocity_max 80
+	}
+	affector ColourImage
+	{ // a. attriutes
+		image smokecolors.png
+	}
+	affector Rotator
+	{ // a. attriutes
+		rotation_range_start 0
+		rotation_range_end 360
+		rotation_speed_range_start -60
+		rotation_speed_range_end 200
+	}
+	affector Scaler
+	{ // a. attriutes
+		rate 50
+	}
+}

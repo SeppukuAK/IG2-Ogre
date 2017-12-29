@@ -39,7 +39,10 @@
     <ClCompile Include="Sinbad.cpp">
       <Filter>Archivos de código fuente\Objetos</Filter>
     </ClCompile>
-    <ClCompile Include="FlotadorMan.cpp">
+    <ClCompile Include="BombMan.cpp">
+      <Filter>Archivos de código fuente\Objetos</Filter>
+    </ClCompile>
+    <ClCompile Include="KnotFlyMan.cpp">
       <Filter>Archivos de código fuente\Objetos</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,7 +62,10 @@
     <ClInclude Include="Sinbad.h">
       <Filter>Archivos de encabezado\Objetos</Filter>
     </ClInclude>
-    <ClInclude Include="FlotadorMan.h">
+    <ClInclude Include="BombMan.h">
+      <Filter>Archivos de encabezado\Objetos</Filter>
+    </ClInclude>
+    <ClInclude Include="KnotFlyMan.h">
       <Filter>Archivos de encabezado\Objetos</Filter>
     </ClInclude>
   </ItemGroup>
