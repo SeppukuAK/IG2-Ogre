@@ -53,11 +53,11 @@ protected:
   void createLight();
   void createPriCam();
   void createObjects();
-  void createSinbad();
+  void createSinbadAndBomb();
   void createMirror();
   void createQueries();
   void createKnotFly();
-  void createBomb();
+
 
 };
 

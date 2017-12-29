@@ -5,8 +5,10 @@ using namespace Ogre;
 
 namespace OgreBites {
 
-	BombMan::BombMan(Ogre::SceneNode* nod, Ogre::Vector3 pos) : ObjectMan(nod, pos)
+	BombMan::BombMan(Ogre::SceneNode* nod, Ogre::Vector3 pos, Sinbad * pSinbad) : ObjectMan(nod, pos)
 	{
+
+		ptrSin = pSinbad;
 		ent = node->getCreator()->createEntity("entBomb", "uv_sphere.mesh");
 
 		ent->getSubEntity(0)->setMaterialName("KnotFly", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);

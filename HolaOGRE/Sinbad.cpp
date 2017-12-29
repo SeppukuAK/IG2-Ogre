@@ -14,6 +14,8 @@ namespace OgreBites {
 		//ent->addQueryFlags(0_QUERY_MASK); // |= 0_QUERY_MASK
 		setObjMan(ent);
 
+		node->setScale(Ogre::Vector3(4.0f));
+
 		createPatrolAnimation();
 
 		initAnimations();
@@ -166,10 +168,10 @@ namespace OgreBites {
 		zSinbad = node->getPosition().z;
 		SceneNode * nodeBomb = node->getCreator()->getEntity("entBomb")->getParentSceneNode();
 		xBomb = nodeBomb->getPosition().x;
-		zBomb = nodeBomb->getPosition().x;
+		zBomb = nodeBomb->getPosition().z;
 
 		//Este es en función de la bomba
-		Ogre::Vector3 dest(xSinbad- xBomb, 0, xBomb-zBomb);
+		Ogre::Vector3 dest(xSinbad- xBomb, 0, zSinbad-zBomb);
 		dest.normalise();
 
 		Ogre::Quaternion quat = src.getRotationTo(dest);
@@ -238,7 +240,9 @@ namespace OgreBites {
 	}
 	bool Sinbad::mousePicking(const OgreBites::MouseButtonEvent& evt)
 	{
+
 		node->showBoundingBox(true);
+		
 
 		if (animationState->getEnabled())
 		{
@@ -248,6 +252,7 @@ namespace OgreBites {
 		}
 		else
 		{
+			node->setScale(Ogre::Vector3(1.0f));
 			animationState->setEnabled(true);
 			animRunBase->setEnabled(true);
 			animRunTop->setEnabled(true);

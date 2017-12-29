@@ -3,12 +3,14 @@
 
 #include "ObjectMan.h"
 #include "Sinbad.h"
+
+
 namespace OgreBites
 {
 	class BombMan : public ObjectMan
 	{
 	public:
-		BombMan(Ogre::SceneNode* nod, Ogre::Vector3 pos);
+		BombMan(Ogre::SceneNode* nod, Ogre::Vector3 pos, Sinbad * pSinbad);
 		~BombMan();
 
 		virtual void frameRendered(const Ogre::FrameEvent & evt) {
@@ -17,7 +19,8 @@ namespace OgreBites
 
 		virtual bool mousePicking(const OgreBites::MouseButtonEvent& evt){
 			pSys->setEmitting(true);
-			static_cast<Sinbad*>(node->getCreator()->getEntity("entSinbad"))->run();
+
+			ptrSin->run();
 			return true;
 		}
 
@@ -28,6 +31,7 @@ namespace OgreBites
 		Ogre::AnimationState * animationState;
 
 		Ogre::ParticleSystem* pSys;
+		Sinbad * ptrSin;
 	};
 
 }

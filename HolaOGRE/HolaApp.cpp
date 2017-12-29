@@ -217,16 +217,16 @@ void HolaApp::createObjects()
 	//Puedo decire que no se vea afectada por el nodo padre
 	//sceneNode->setInheritOrientation(bool inherit); Default true
 
-	createSinbad();
+	createSinbadAndBomb();
 	
 	createMirror();
 
 	createKnotFly();
 
-	createBomb();
+
 }
 
-void HolaApp::createSinbad()
+void HolaApp::createSinbadAndBomb()
 {
 	SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode("nSinbad");
 	Vector3 pos(0,25,0);
@@ -234,6 +234,14 @@ void HolaApp::createSinbad()
 
 	vecObjMan.push_back(aux);
 	addInputListener(aux);
+
+	//Bomba
+	SceneNode * nodeKnot = scnMgr->getRootSceneNode()->createChildSceneNode("nBomb");
+
+	pos = Vector3(0, 0, 0);
+	OgreBites::BombMan * auxBomb = new OgreBites::BombMan(nodeKnot, pos, aux);
+
+	vecObjMan.push_back(auxBomb);
 }
 
 //Utilizamos un RenderTexture() con un viewport y camara propia.
@@ -260,15 +268,6 @@ void HolaApp::createKnotFly()
 	vecObjMan.push_back(aux);
 }
 
-void HolaApp::createBomb()
-{
-	SceneNode * nodeKnot = scnMgr->getRootSceneNode()->createChildSceneNode("nBomb");
-
-	Vector3 pos(0, 0, 0);
-	OgreBites::BombMan * aux = new OgreBites::BombMan(nodeKnot, pos);
-
-	vecObjMan.push_back(aux);
-}
 
 void HolaApp::createQueries()
 {
