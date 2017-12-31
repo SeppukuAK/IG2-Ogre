@@ -21,4 +21,5 @@ void ObjectMan::setObjMan(Ogre::MovableObject* mObj) {
 		node->attachObject(mObj);
 		node->getAttachedObject(0)->getUserObjectBindings().setUserAny(Ogre::Any(control));
 	}
+	//else a lo mejor hay que hacer algo
 }

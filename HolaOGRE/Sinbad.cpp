@@ -6,20 +6,20 @@ namespace OgreBites {
 
 	Sinbad::Sinbad(Ogre::SceneNode* nod, Ogre::Vector3 pos) : ObjectMan(nod, pos)
 	{
-		//Si fuese una luz o cámara sería diferente
 		ent = node->getCreator()->createEntity("entSinbad", "Sinbad.mesh");
 
 		//Configuramos entidades con marcas(flags)
 		ent->setQueryFlags(MY_QUERY_MASK);
-		//ent->addQueryFlags(0_QUERY_MASK); // |= 0_QUERY_MASK
+
 		setObjMan(ent);
 
 		node->setScale(Ogre::Vector3(4.0f));
 
+		//Se inicializa el estado a Patrol
 		lastState = Idle;
 		state = Patrol;
 
-		createPatrolAnimation();
+
 
 		initAnimations();
 	}
@@ -28,47 +28,65 @@ namespace OgreBites {
 	{
 	}
 
-	void Sinbad::initAnimations()
-	{
-		//RunBase, RunTop, IdleTop, IdleBase
-
-		//----------Animaciones de correr----------
-		animRunBase = ent->getAnimationState("RunBase");
+	void Sinbad::initAnimPatrol(){
+		//Movimiento de brazos y piernas
+		animRunBase = ent->getAnimationState("RunBase");//Piernas
 		animRunBase->setLoop(true);
 		animRunBase->setEnabled(true);
 
-
-		animRunTop = ent->getAnimationState("RunTop");
+		animRunTop = ent->getAnimationState("RunTop");//Brazos
 		animRunTop->setLoop(true);
 		animRunTop->setEnabled(true);
 
-		//----------Animaciones de correr----------
+		//Creación de la animación de Patrol
+		animationPatrol = node->getCreator()->createAnimationState("animSinbad");
+		animationPatrol->setLoop(true);
+		animationPatrol->setEnabled(true);
 
+
+	}
+
+	void Sinbad::initAnimEspadas(){
+		//Sacar espadas
 		animSacarEspadas = ent->getAnimationState("DrawSwords");
 		animSacarEspadas->setLoop(false);
 		animSacarEspadas->setEnabled(false);
 
+		//Blandir espadas
 		animBlandirEspadas = ent->getAnimationState("SliceHorizontal");
 		animBlandirEspadas->setLoop(true);
 		animBlandirEspadas->setEnabled(false);
 
+		//Cerramos las manos
 		ent->getAnimationState("HandsClosed")->setEnabled(true);
 
-
-		//Espadas
+		//Espadas (entidad)
 		espadaEnt1 = node->getCreator()->createEntity("entEspada1", "Sword.mesh");
 		espadaEnt2 = node->getCreator()->createEntity("entEspada2", "Sword.mesh");
 
-		//"Handle.L" "Sheath.R"
+		//Espada izquierda en la funda
 		ent->attachObjectToBone("Sheath.L", espadaEnt1);
 
+		//Espada derecha en la mano
 		ent->attachObjectToBone("Handle.R", espadaEnt2);
+	}
+
+	void Sinbad::initAnimations()
+	{
+		//Se inicializa la animación de patrulla
+		createPatrolAnimation();
+		initAnimPatrol();
+
+		//Se inicializa la animación de las espadas
+		initAnimEspadas();
+
+		/*Animaciones que se pueden hacer
 
 		/*"Dance" "DrawSwords" "HandsClosed" "HandsRelaxed"
 		"IdleBase" "IdleTop" "JumpEnd" "JumpLoop" "JumpStart"
 		"RunBase" "RunTop" "SliceHorizontal" "SliceVertical"*/
-		//"Dance",
-		/*
+
+		/* Codigo para ver las animaciones que tiene el modelo
 		Ogre::AnimationStateSet * aux = ent->getAllAnimationStates();
 		auto it = aux->getAnimationStateIterator().begin();
 		while (it != aux->getAnimationStateIterator().end())
@@ -78,10 +96,6 @@ namespace OgreBites {
 		}
 		*/
 
-		//Asignamos la animaciones creada
-		animationPatrol = node->getCreator()->createAnimationState("animSinbad");
-		animationPatrol->setLoop(true);
-		animationPatrol->setEnabled(true);
 	}
 	void Sinbad::frameRendered(const Ogre::FrameEvent & evt) {
 		//Movimiento por cuadrado
@@ -94,10 +108,10 @@ namespace OgreBites {
 			animRunTop->addTime(evt.timeSinceLastFrame);
 			break;
 
-		case Run:		
+		case Run:
+
 			animationRun->addTime(evt.timeSinceLastFrame);
 			animRunBase->addTime(evt.timeSinceLastFrame);
-
 
 			if (animSacarEspadas->hasEnded())
 			{
@@ -111,38 +125,19 @@ namespace OgreBites {
 			if (animBlandirEspadas->getEnabled())
 				animBlandirEspadas->addTime(evt.timeSinceLastEvent);
 
-			
-
 			if (animationRun->hasEnded())
-			{
+				runToDead();
 
-				animBlandirEspadas->setEnabled(false);
-				animRunBase->setEnabled(false);
-				animationRun->setEnabled(false);
-				state = Dead;
-				lastState = Run;
-				node->rotate(Ogre::Vector3(1.0f, 0.0f, 0.0f), Ogre::Radian(3.14 / 2));
-				node->rotate(Ogre::Vector3(0.0f, 1.0f, 0.0f), Ogre::Radian(3.14));
-
-				node->translate(Ogre::Vector3(0.0f, -20.0f, 0.0f));
-
-			}
 			break;
 
 		case Dead:
-
 			node->translate(Ogre::Vector3(0.03f, 0.0f, 0.0f));
 			break;
 
 		case Idle:
 			break;
 		}
-
-
 	};
-
-	
-
 
 	void Sinbad::createPatrolAnimation()
 	{
@@ -176,7 +171,7 @@ namespace OgreBites {
 		setTAfin(kf, keyframePos, quat);
 
 		//3
-		kf = track->createNodeKeyFrame(longitudPaso * 2.25); 
+		kf = track->createNodeKeyFrame(longitudPaso * 2.25);
 		keyframePos += Ogre::Vector3::UNIT_Z * tamDesplazamiento;
 		setTAfin(kf, keyframePos, quat);
 
@@ -188,7 +183,7 @@ namespace OgreBites {
 		setTAfin(kf, keyframePos, quat);
 
 		//5
-		kf = track->createNodeKeyFrame(longitudPaso * 3.50); 
+		kf = track->createNodeKeyFrame(longitudPaso * 3.50);
 		keyframePos += Ogre::Vector3::UNIT_X * tamDesplazamiento * -1;
 		setTAfin(kf, keyframePos, quat);
 
@@ -230,7 +225,7 @@ namespace OgreBites {
 		zBomb = nodeBomb->getPosition().z;
 
 		//Este es en función de la bomba
-		Ogre::Vector3 dest(xBomb - xSinbad, 0, zBomb -zSinbad );
+		Ogre::Vector3 dest(xBomb - xSinbad, 0, zBomb - zSinbad);
 		dest.normalise();
 
 		Ogre::Quaternion quat = src.getRotationTo(dest);
@@ -246,7 +241,8 @@ namespace OgreBites {
 		keyframePos = Ogre::Vector3(nodeBomb->getPosition().x, 20, nodeBomb->getPosition().z);
 		setTAfin(kf, keyframePos, quat);
 	}
-	//TRANSFORMACION,ROTACION,ESCALA
+
+	//Método que gestiona las transformaciones afines (rotación, traslación y escala)
 	void Sinbad::setTAfin(TransformKeyFrame * kf, Vector3 keyframePos, Quaternion quat){
 		kf->setTranslate(keyframePos); // Arriba
 		kf->setRotation(quat);
@@ -271,54 +267,34 @@ namespace OgreBites {
 
 		return InputListener::keyPressed(evt);
 	}
+
+
 	bool Sinbad::mousePicking(const OgreBites::MouseButtonEvent& evt)
 	{
-		node->showBoundingBox(true);
-		
+		node->showBoundingBox(true);//Se muestra la caja de colisión
+
 		switch (state)
 		{
-		case Patrol: //Paso a Idle
-			animationPatrol->setEnabled(false);
-			animRunBase->setEnabled(false);
-			animRunTop->setEnabled(false);
-			state = Idle;
-			lastState = Patrol;
+		case Patrol: //Patrol->Idle
+			patrolToIdle();
 			break;
 
-		case Run: //Paso a Idle
-			
-			animationRun->setEnabled(false);
-			animRunBase->setEnabled(false);
-			animRunTop->setEnabled(false);
-			state = Idle;
-			lastState = Run;
+		case Run: //Run->Idle		
+			runToIdle();
 			break;
 
-		case Idle: //Distingo en función del anterior estado
+		case Idle: //Distingo en función del estado anterior
 			switch (lastState)
 			{
-			case Patrol:
-				animationPatrol->setEnabled(true);
-				animRunBase->setEnabled(true);
-				animRunTop->setEnabled(true);
-				state = Patrol;
-				lastState = Idle;
+			case Patrol: //Idle->Patrol
+				idleToPatrol();
 				break;
-			
-			case Run:
-				animRunTop->setEnabled(false);
 
-				//Slice
-				animBlandirEspadas->setEnabled(true);
-				animationRun->setEnabled(true);
-				animRunBase->setEnabled(true);
-				
-				state = Run;
-				lastState = Idle;
+			case Run: //Idle->Run
+				idleToRun();
 				break;
 			}
 			break;
-
 		}
 
 		return true;
@@ -326,25 +302,87 @@ namespace OgreBites {
 
 	void Sinbad::runToBomb()
 	{
+		//Se desactivan las otras animaciones
+		animationPatrol->setEnabled(false);
+		animRunTop->setEnabled(false);
+		animRunBase->setEnabled(true);
+
+		//Se crea la animación de correr hacia la bomba
 		createRunAnimation();
 
-
+		//Sinbad saca la espada izquierda
 		ent->detachObjectFromBone(espadaEnt1);
 		ent->attachObjectToBone("Handle.L", espadaEnt1);
-		
 
+		//Sinbad blande las espadas
 		animSacarEspadas->setEnabled(true);
-		animRunTop->setEnabled(false);
-	
 
-		//Asignamos la animaciones creada
 		animationRun = node->getCreator()->createAnimationState("animBomb");
-		animationRun->setLoop(false);
 		animationRun->setEnabled(true);
-
-		animationPatrol->setEnabled(false);
+		animationRun->setLoop(false);
 
 		lastState = Patrol;
 		state = Run;
 	}
+
+	//------------------MÉTODOS DE CAMBIOS DE ESTADO-------------------
+
+	//Desactiva las animaciones de correr con los brazos y con las piernas
+	void Sinbad::anyStateToIdle(){
+		animRunBase->setEnabled(false);
+		animRunTop->setEnabled(false);
+	}
+
+	//Pasa del estado Patrol a Idle
+	void Sinbad::patrolToIdle(){
+		animationPatrol->setEnabled(false);
+		anyStateToIdle();
+		state = Idle;
+		lastState = Patrol;
+	}
+
+	//Pasa del estado Run a Idle
+	void Sinbad::runToIdle(){
+		animationRun->setEnabled(false);
+		anyStateToIdle();
+		state = Idle;
+		lastState = Run;
+	}
+
+
+
+	//Pasa del estado Idle a Patrol
+	void Sinbad::idleToPatrol(){
+		animationPatrol->setEnabled(true);
+		animRunBase->setEnabled(true);
+		animRunTop->setEnabled(true);
+
+		state = Patrol;
+		lastState = Idle;
+	}
+	//Pasa del estado Idle a Run
+	void Sinbad::idleToRun(){
+		animRunTop->setEnabled(false);
+
+		//Blandir Espadas
+		animBlandirEspadas->setEnabled(true);
+		animationRun->setEnabled(true);
+		animRunBase->setEnabled(true);
+
+		state = Run;
+		lastState = Idle;
+	}
+
+	void Sinbad::runToDead(){
+		animBlandirEspadas->setEnabled(false);
+		animRunBase->setEnabled(false);
+		animationRun->setEnabled(false);
+		state = Dead;
+		lastState = Run;
+
+		node->rotate(Ogre::Vector3(1.0f, 0.0f, 0.0f), Ogre::Radian(3.14 / 2));
+		node->rotate(Ogre::Vector3(0.0f, 1.0f, 0.0f), Ogre::Radian(3.14));
+		node->translate(Ogre::Vector3(0.0f, -20.0f, 0.0f));
+	}
+	//------------------METODOS DE CAMBIOS DE ESTADO-------------------
 }

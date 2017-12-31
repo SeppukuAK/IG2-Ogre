@@ -7,32 +7,47 @@ namespace OgreBites
 
 	PanelMan::PanelMan(Ogre::SceneNode* nod, Ogre::Vector3 pos) : ObjectMan(nod, pos)
 	{
+		//Guardo la referencia al SceneManager
 		scnMgr = node->getCreator();
 
+		//TAfin del nodo
 		node->rotate(Ogre::Vector3(-1, 0, 0), Ogre::Radian(Ogre::Degree(90.0f)));
-		node->scale(0.2f,0.2f, 0.2f);
+		node->scale(0.2f, 0.2f, 0.2f);
 
-		//-------PANEL: malla rectangular con textura ---------
+		//Entidad
 		//MeshManager es una clase de instancia unica
 		MeshPtr plane = MeshManager::getSingleton().createPlane("mFondo",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			Plane(Vector3::UNIT_Z, 0),
-			(Real)800, //Antes estaba con mWindow
-			(Real)800,
+			(Real)scnMgr->getCamera("Cam")->getViewport()->getActualWidth(), //SE CREA EN FUNCIÓN DE LA CÁMARA
+			(Real)scnMgr->getCamera("Cam")->getViewport()->getActualHeight(),
 			10, 10, true, 1, 1.0, 1.0, Vector3::UNIT_Y);
 
 		//Creamos la entidad a partir de la malla
-		Entity* entPlano = scnMgr->createEntity("entFondo", "mFondo");
+		ent = scnMgr->createEntity("entFondo", "mFondo");
 		//Material por defecto es Blanco
 
 		//Añadimos textura al material del panel
-		//entPlano->getSubEntity(0)->getMaterial()->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
-		entPlano->getSubEntity(0)->setMaterialName("panel", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		//entPlano->getSubEntity(0)->getMaterial()->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg"); //Esto es para hacerlo sin material (MAL)
+		ent->getSubEntity(0)->setMaterialName("panel", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-		setObjMan(entPlano);
+		setObjMan(ent);
 
-		//-------PANEL: malla rectangular con textura ---------
+		//Flags del ratón: NO quiero que sea procesado
+		ent->setQueryFlags(O_QUERY_MASK);
 
+		createReflection();
+	}
+
+
+	PanelMan::~PanelMan()
+	{
+		renderTexture->removeListener(this);
+	}
+
+	//Crea el reflejo en el plano
+	void PanelMan::createReflection()
+	{
 		//---------CAMARA DEL REFLEJO---------
 		//Añadimos nueva cámara para el reflejo
 		Camera* camRef = scnMgr->createCamera("RefCam");
@@ -68,7 +83,7 @@ namespace OgreBites
 		vpText->setBackgroundColour(ColourValue::Black);
 
 		//Añadimos la nueva unidad de textura al material del panel
-		TextureUnitState*t = entPlano->getSubEntity(0)->getMaterial()->
+		TextureUnitState*t = ent->getSubEntity(0)->getMaterial()->
 			getTechnique(0)->getPass(0)->
 			createTextureUnitState("texRtt");
 		t->setColourOperation(LBO_ADD); // backgroundColour -> black
@@ -80,13 +95,6 @@ namespace OgreBites
 		renderTexture->addListener(this);
 		//---------TEXTURA DEL REFLEJO---------
 
-		entPlano->setQueryFlags(O_QUERY_MASK); // |= 0_QUERY_MASK
-	}
-
-
-	PanelMan::~PanelMan()
-	{
-		renderTexture->removeListener(this);
 	}
 
 	// ocultar el panel y poner luz ambiente

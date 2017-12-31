@@ -11,12 +11,18 @@ namespace OgreBites
 		PanelMan(Ogre::SceneNode* nod, Ogre::Vector3 pos);
 		~PanelMan();
 
-		//EVENTOS
+		//EVENTOS DE RENDERIZADO
 		virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);// ocultar el panel y poner luz ambiente
 		virtual void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);// restablecer los cambios
 	private:
-		Ogre::SceneManager* scnMgr;
+		//Entidad
+		Ogre::Entity* ent;
 		Ogre::RenderTexture* renderTexture;
+
+		//Referencias
+		Ogre::SceneManager* scnMgr;
+
+		void createReflection();
 	};
 
 }

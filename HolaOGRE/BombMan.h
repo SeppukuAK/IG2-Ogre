@@ -7,10 +7,11 @@
 
 namespace OgreBites
 {
+	//Bomba que explota si haces click y hace que Sinbad vaya a por ella
 	class BombMan : public ObjectMan
 	{
 	public:
-		BombMan(Ogre::SceneNode* nod, Ogre::Vector3 pos, Sinbad * pSinbad);
+		BombMan(Ogre::SceneNode* nod, Ogre::Vector3 pos, Sinbad * pSin);
 		~BombMan();
 
 		virtual void frameRendered(const Ogre::FrameEvent & evt) {
@@ -18,25 +19,34 @@ namespace OgreBites
 		};
 
 		virtual bool mousePicking(const OgreBites::MouseButtonEvent& evt){
+			//Si hago click en la bomba
 			if (!boom)
 			{
 				boom = true;
-				pSys->setEmitting(true);
-				ptrSin->runToBomb();
+				pSys->setEmitting(true);//Emito particulas
+				pSinbad->runToBomb(); //Sinbad corre hacia ella
 			}
 			return true;
 		}
 
 	private:
-		Ogre::Entity* ent;
-		Ogre::Animation * animation;
-		Ogre::NodeAnimationTrack * track;
+		//Entidad
+		Ogre::Entity* ent;		
 		Ogre::AnimationState * animationState;
 
+		//Humo
 		Ogre::ParticleSystem* pSys;
-		Sinbad * ptrSin;
 
+		//Referencias
+		Ogre::SceneManager* scnMgr;
+		Sinbad * pSinbad;
+
+		//Booleana que indica si la bomba ha explotado
 		bool boom;
+
+		void initAnimation();
+		void setTAfinKF(Ogre::TransformKeyFrame * kf, Ogre::Vector3 keyframePos); //Translacion, escala
+
 	};
 
 }

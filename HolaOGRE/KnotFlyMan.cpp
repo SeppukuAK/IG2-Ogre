@@ -8,12 +8,12 @@ namespace OgreBites {
 	{
 		node->setScale(Vector3{ 0.01f, 0.01f, 0.01f });
 
+		//Creación de entidad
 		ent = node->getCreator()->createEntity("entKnot", "knot.mesh");
-
 		ent->getSubEntity(0)->setMaterialName("KnotFly", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
 		setObjMan(ent);
 
+		//Flags del ratón
 		ent->setQueryFlags(MY_QUERY_MASK);
 	}
 
