@@ -16,6 +16,9 @@ namespace OgreBites {
 
 		node->setScale(Ogre::Vector3(4.0f));
 
+		lastState = Idle;
+		state = Patrol;
+
 		createPatrolAnimation();
 
 		initAnimations();
@@ -28,7 +31,6 @@ namespace OgreBites {
 	void Sinbad::initAnimations()
 	{
 		//RunBase, RunTop, IdleTop, IdleBase
-		espadasSacadas = false;
 
 		//----------Animaciones de correr----------
 		animRunBase = ent->getAnimationState("RunBase");
@@ -41,6 +43,9 @@ namespace OgreBites {
 		animRunTop->setEnabled(true);
 
 		//----------Animaciones de correr----------
+
+		/*
+		espadasSacadas = false;
 
 		animSacarEspadas = ent->getAnimationState("DrawSwords");
 		animSacarEspadas->setLoop(false);
@@ -61,7 +66,7 @@ namespace OgreBites {
 		//"Handle.L" "Sheath.R"
 		ent->attachObjectToBone("Sheath.L", espadaEnt1);
 		ent->attachObjectToBone("Sheath.R", espadaEnt2);
-
+		*/
 		/*"Dance" "DrawSwords" "HandsClosed" "HandsRelaxed"
 		"IdleBase" "IdleTop" "JumpEnd" "JumpLoop" "JumpStart"
 		"RunBase" "RunTop" "SliceHorizontal" "SliceVertical"*/
@@ -77,11 +82,9 @@ namespace OgreBites {
 		*/
 
 		//Asignamos la animaciones creada
-		animationState = node->getCreator()->createAnimationState("animSinbad");
-		animationState->setLoop(true);
-		animationState->setEnabled(true);
-
-
+		animationPatrol = node->getCreator()->createAnimationState("animSinbad");
+		animationPatrol->setLoop(true);
+		animationPatrol->setEnabled(true);
 	}
 
 
@@ -171,7 +174,7 @@ namespace OgreBites {
 		zBomb = nodeBomb->getPosition().z;
 
 		//Este es en función de la bomba
-		Ogre::Vector3 dest(xSinbad- xBomb, 0, zSinbad-zBomb);
+		Ogre::Vector3 dest(xBomb - xSinbad, 0, zBomb -zSinbad );
 		dest.normalise();
 
 		Ogre::Quaternion quat = src.getRotationTo(dest);
@@ -184,7 +187,7 @@ namespace OgreBites {
 		//1
 
 		kf = track->createNodeKeyFrame(duracion);
-		keyframePos = nodeBomb->getPosition();
+		keyframePos = Ogre::Vector3(nodeBomb->getPosition().x, 20, nodeBomb->getPosition().z);
 		setTAfin(kf, keyframePos, quat);
 	}
 	//TRANSFORMACION,ROTACION,ESCALA
@@ -212,6 +215,7 @@ namespace OgreBites {
 
 		if (key == 'q')
 		{
+			/*
 			if (!espadasSacadas)
 			{
 				animRunTop->setEnabled(false);
@@ -234,28 +238,54 @@ namespace OgreBites {
 
 				espadasSacadas = false;
 			}
+			*/
 		}
 
 		return InputListener::keyPressed(evt);
 	}
 	bool Sinbad::mousePicking(const OgreBites::MouseButtonEvent& evt)
 	{
-
 		node->showBoundingBox(true);
 		
-
-		if (animationState->getEnabled())
+		switch (state)
 		{
-			animationState->setEnabled(false);
+		case Patrol: //Paso a Idle
+			animationPatrol->setEnabled(false);
 			animRunBase->setEnabled(false);
 			animRunTop->setEnabled(false);
-		}
-		else
-		{
-			node->setScale(Ogre::Vector3(1.0f));
-			animationState->setEnabled(true);
-			animRunBase->setEnabled(true);
-			animRunTop->setEnabled(true);
+			state = Idle;
+			lastState = Patrol;
+			break;
+
+		case Run: //Paso a Idle
+			animationRun->setEnabled(false);
+			animRunBase->setEnabled(false);
+			animRunTop->setEnabled(false);
+			state = Idle;
+			lastState = Run;
+			break;
+
+		case Idle: //Distingo en función del anterior estado
+			switch (lastState)
+			{
+			case Patrol:
+				animationPatrol->setEnabled(true);
+				animRunBase->setEnabled(true);
+				animRunTop->setEnabled(true);
+				state = Patrol;
+				lastState = Idle;
+				break;
+			
+			case Run:
+				animationRun->setEnabled(true);
+				animRunBase->setEnabled(true);
+				animRunTop->setEnabled(true);
+				state = Run;
+				lastState = Idle;
+				break;
+			}
+			break;
+
 		}
 
 		return true;
@@ -265,11 +295,17 @@ namespace OgreBites {
 	{
 		createRunAnimation();
 
-		//Asignamos la animaciones creada
-		animationBomb = node->getCreator()->createAnimationState("animBomb");
-		animationBomb->setLoop(false);
-		animationBomb->setEnabled(true);
+		animRunBase->setEnabled(true);
+		animRunTop->setEnabled(true);
 
-		animationState->setEnabled(false);
+		//Asignamos la animaciones creada
+		animationRun = node->getCreator()->createAnimationState("animBomb");
+		animationRun->setLoop(false);
+		animationRun->setEnabled(true);
+
+		animationPatrol->setEnabled(false);
+
+		lastState = Patrol;
+		state = Run;
 	}
 }

@@ -2,8 +2,16 @@
 #define __Sinbad_H__
 
 #include "ObjectMan.h"
+
 namespace OgreBites
 {
+	enum State{
+		Patrol,
+		Run,
+		Idle,
+		Dead
+	};
+
 	class Sinbad : public InputListener, public ObjectMan
 	{
 	public:
@@ -16,12 +24,43 @@ namespace OgreBites
 		
 		virtual void frameRendered(const Ogre::FrameEvent & evt) {
 			//Movimiento por cuadrado
-			animationState->addTime(evt.timeSinceLastFrame);
+		
+			switch (state)
+			{
+			case Patrol: 
+				animationPatrol->addTime(evt.timeSinceLastFrame);
+				animRunBase->addTime(evt.timeSinceLastFrame);
+				animRunTop->addTime(evt.timeSinceLastFrame);
+				break;
 
-			animRunBase->addTime(evt.timeSinceLastFrame);
+			case Run:
+				animationRun->addTime(evt.timeSinceLastFrame);
+				animRunBase->addTime(evt.timeSinceLastFrame);
+				animRunTop->addTime(evt.timeSinceLastFrame);
 
-			animRunTop->addTime(evt.timeSinceLastFrame);
+				if (animationRun->hasEnded())
+				{
+					animRunBase->setEnabled(false);
+					animRunTop->setEnabled(false);
+					animationRun->setEnabled(false);
+					state = Dead;
+					lastState = Run;
+					node->rotate(Ogre::Vector3(1.0f,0.0f, 0.0f), Ogre::Radian(3.14/2));
+					node->rotate(Ogre::Vector3(0.0f, 1.0f, 0.0f), Ogre::Radian(3.14));
 
+					node->translate(Ogre::Vector3(0.0f, -20.0f, 0.0f));
+
+				}
+				break;
+
+			case Dead:
+				node->translate(Ogre::Vector3(0.03f,0.0f, 0.0f));
+				break;
+
+			case Idle: 
+				break;
+			}
+			/*
 			animSacarEspadas->addTime(evt.timeSinceLastFrame);
 			if (animSacarEspadas->hasEnded())
 			{
@@ -31,27 +70,35 @@ namespace OgreBites
 			animCerrarManitas->addTime(evt.timeSinceLastFrame);
 			if (animCerrarManitas->hasEnded())
 				animCerrarManitas->setEnabled(false);
+				*/
 			
+
 		};
 		
 		void run();
 	private:
 		Ogre::Entity* ent;
-		Ogre::Entity* espadaEnt1;
-		Ogre::Entity* espadaEnt2;
+		//Ogre::Entity* espadaEnt1;
+		//Ogre::Entity* espadaEnt2;
 
 		//Animaciones del modelo
 		Ogre::AnimationState* animRunBase;
 		Ogre::AnimationState* animRunTop;
+
+		/*
 		Ogre::AnimationState* animSacarEspadas;
 		Ogre::AnimationState* animCerrarManitas;
 		Ogre::AnimationState* animAbrirManitas;
 
 		bool espadasSacadas;
+		*/
 
 		//Animaciones propias
-		Ogre::AnimationState * animationState;
-		Ogre::AnimationState * animationBomb;
+		Ogre::AnimationState * animationPatrol;
+		Ogre::AnimationState * animationRun;
+
+		State state;
+		State lastState;
 
 		void createPatrolAnimation();
 		void createRunAnimation();

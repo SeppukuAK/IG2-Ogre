@@ -18,9 +18,12 @@ namespace OgreBites
 		};
 
 		virtual bool mousePicking(const OgreBites::MouseButtonEvent& evt){
-			pSys->setEmitting(true);
-
-			ptrSin->run();
+			if (!boom)
+			{
+				boom = true;
+				pSys->setEmitting(true);
+				ptrSin->run();
+			}
 			return true;
 		}
 
@@ -32,6 +35,8 @@ namespace OgreBites
 
 		Ogre::ParticleSystem* pSys;
 		Sinbad * ptrSin;
+
+		bool boom;
 	};
 
 }
