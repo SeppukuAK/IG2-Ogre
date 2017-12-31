@@ -55,7 +55,7 @@ bool HolaApp::mousePressed(const OgreBites::MouseButtonEvent &  evt)
 		UserControl* pCtrl = any_cast<UserControl*>(it->movable->
 			getUserObjectBindings().getUserAny());
 		pCtrl->getControl()->mousePicking(evt);
-		//++it;//No se si esto debe ir aqui
+		//++it;//No se si esto debe ir aqui. Si hubiera más objetos haría falta
 	}
 	
   return true;
@@ -119,7 +119,7 @@ void HolaApp::setup(void)
   setupScene();
 }
 
-//Configura la escena para que salgan 4 ogritos
+//Configura la escena 
 void HolaApp::setupScene(void)
 {
 	createLight();

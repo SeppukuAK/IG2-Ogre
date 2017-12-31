@@ -22,8 +22,6 @@ public:
 	static const Ogre::uint32 MY_QUERY_MASK = 1; // << 0; //Lo tienen todos los objetos que quiero procesar
 	static const Ogre::uint32 O_QUERY_MASK = 0;
 
-	//...
-
 	//Metodo que es llamado cuando se hace click en el objeto
 	virtual bool mousePicking(const OgreBites::MouseButtonEvent& evt)
 	{

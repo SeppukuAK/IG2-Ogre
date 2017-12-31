@@ -21,48 +21,51 @@ namespace OgreBites
 		//EVENTOS
 		bool keyPressed(const KeyboardEvent& evt);
 		virtual bool mousePicking(const OgreBites::MouseButtonEvent& evt);
-		//6666666666
+
 		virtual void frameRendered(const Ogre::FrameEvent & evt);
 
 		//Metodo en el que Sinbad se acerca a la bomba blandiendo las espadas
 		void runToBomb();
 
 	private:
+		//Entidades
 		Ogre::Entity* ent;
-		Ogre::Entity* espadaEnt1;
-		Ogre::Entity* espadaEnt2;
+		Ogre::Entity* swordEntL;
+		Ogre::Entity* swordEntR;
 
 		//Animaciones del modelo
 		Ogre::AnimationState* animRunBase;
 		Ogre::AnimationState* animRunTop;
-
-
 		Ogre::AnimationState* animSacarEspadas;
 		Ogre::AnimationState* animBlandirEspadas;
 
-
-
 		//Animaciones propias
 		Ogre::AnimationState * animationPatrol;
-		Ogre::AnimationState * animationRun;
+		Ogre::AnimationState * animationRunToBomb;
 
+		//Estados
 		State state;
 		State lastState;
 
+		//Inicialización de animaciones
+		void initAnimations();
+		void initSinbadAnim();
+		void initOwnAnim();
+
+		//Creación de animaciones propias
+		void createPatrolAnimation(); //Crea animación de dar vueltas por un cuadrado
+		void createRunAnimation(); //Crea la animación de moverse a la bomba
+
 		//Cambios de estado
+		void anyStateToIdle();
 		void patrolToIdle();
 		void runToIdle();
-		void anyStateToIdle();
 		void idleToPatrol();
 		void idleToRun();
 		void runToDead();
 
-		void createPatrolAnimation(); //666666
-			void createRunAnimation(); //66666666
-			void initAnimations();
-		void initAnimPatrol();
-		void initAnimEspadas();
-		void setTAfin(Ogre::TransformKeyFrame * kf, Ogre::Vector3 keyframePos, Ogre::Quaternion quat); //TRANSFORMACION,ROTACION,ESCALA
+		//Método que gestiona las transformaciones afines de KF (rotación, traslación y escala)
+		void setTAfin(Ogre::TransformKeyFrame * kf, Ogre::Vector3 keyframePos, Ogre::Quaternion quat);
 	};
 
 }
