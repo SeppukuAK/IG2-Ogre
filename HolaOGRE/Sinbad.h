@@ -22,76 +22,25 @@ namespace OgreBites
 		bool keyPressed(const KeyboardEvent& evt);
 		virtual bool mousePicking(const OgreBites::MouseButtonEvent& evt);
 		
-		virtual void frameRendered(const Ogre::FrameEvent & evt) {
-			//Movimiento por cuadrado
+		virtual void frameRendered(const Ogre::FrameEvent & evt);
+
 		
-			switch (state)
-			{
-			case Patrol: 
-				animationPatrol->addTime(evt.timeSinceLastFrame);
-				animRunBase->addTime(evt.timeSinceLastFrame);
-				animRunTop->addTime(evt.timeSinceLastFrame);
-				break;
-
-			case Run:
-				animationRun->addTime(evt.timeSinceLastFrame);
-				animRunBase->addTime(evt.timeSinceLastFrame);
-				animRunTop->addTime(evt.timeSinceLastFrame);
-
-				if (animationRun->hasEnded())
-				{
-					animRunBase->setEnabled(false);
-					animRunTop->setEnabled(false);
-					animationRun->setEnabled(false);
-					state = Dead;
-					lastState = Run;
-					node->rotate(Ogre::Vector3(1.0f,0.0f, 0.0f), Ogre::Radian(3.14/2));
-					node->rotate(Ogre::Vector3(0.0f, 1.0f, 0.0f), Ogre::Radian(3.14));
-
-					node->translate(Ogre::Vector3(0.0f, -20.0f, 0.0f));
-
-				}
-				break;
-
-			case Dead:
-				node->translate(Ogre::Vector3(0.03f,0.0f, 0.0f));
-				break;
-
-			case Idle: 
-				break;
-			}
-			/*
-			animSacarEspadas->addTime(evt.timeSinceLastFrame);
-			if (animSacarEspadas->hasEnded())
-			{
-				animSacarEspadas->setEnabled(false);
-				animRunTop->setEnabled(true);
-			}
-			animCerrarManitas->addTime(evt.timeSinceLastFrame);
-			if (animCerrarManitas->hasEnded())
-				animCerrarManitas->setEnabled(false);
-				*/
-			
-
-		};
 		
-		void run();
+		void runToBomb();
 	private:
 		Ogre::Entity* ent;
-		//Ogre::Entity* espadaEnt1;
-		//Ogre::Entity* espadaEnt2;
+		Ogre::Entity* espadaEnt1;
+		Ogre::Entity* espadaEnt2;
 
 		//Animaciones del modelo
 		Ogre::AnimationState* animRunBase;
 		Ogre::AnimationState* animRunTop;
 
-		/*
+		
 		Ogre::AnimationState* animSacarEspadas;
-		Ogre::AnimationState* animCerrarManitas;
-		Ogre::AnimationState* animAbrirManitas;
+		Ogre::AnimationState* animBlandirEspadas;
 
-		bool espadasSacadas;
-		*/
+		
 
 		//Animaciones propias
 		Ogre::AnimationState * animationPatrol;

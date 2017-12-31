@@ -44,20 +44,16 @@ namespace OgreBites {
 
 		//----------Animaciones de correr----------
 
-		/*
-		espadasSacadas = false;
-
 		animSacarEspadas = ent->getAnimationState("DrawSwords");
 		animSacarEspadas->setLoop(false);
 		animSacarEspadas->setEnabled(false);
 
-		animCerrarManitas = ent->getAnimationState("HandsClosed");
-		animCerrarManitas->setLoop(false);
-		animCerrarManitas->setEnabled(false);
+		animBlandirEspadas = ent->getAnimationState("SliceHorizontal");
+		animBlandirEspadas->setLoop(true);
+		animBlandirEspadas->setEnabled(false);
 
-		animAbrirManitas = ent->getAnimationState("HandsRelaxed");
-		animAbrirManitas->setLoop(false);
-		animAbrirManitas->setEnabled(true);
+		ent->getAnimationState("HandsClosed")->setEnabled(true);
+
 
 		//Espadas
 		espadaEnt1 = node->getCreator()->createEntity("entEspada1", "Sword.mesh");
@@ -65,8 +61,9 @@ namespace OgreBites {
 
 		//"Handle.L" "Sheath.R"
 		ent->attachObjectToBone("Sheath.L", espadaEnt1);
-		ent->attachObjectToBone("Sheath.R", espadaEnt2);
-		*/
+
+		ent->attachObjectToBone("Handle.R", espadaEnt2);
+
 		/*"Dance" "DrawSwords" "HandsClosed" "HandsRelaxed"
 		"IdleBase" "IdleTop" "JumpEnd" "JumpLoop" "JumpStart"
 		"RunBase" "RunTop" "SliceHorizontal" "SliceVertical"*/
@@ -86,6 +83,65 @@ namespace OgreBites {
 		animationPatrol->setLoop(true);
 		animationPatrol->setEnabled(true);
 	}
+	void Sinbad::frameRendered(const Ogre::FrameEvent & evt) {
+		//Movimiento por cuadrado
+
+		switch (state)
+		{
+		case Patrol:
+			animationPatrol->addTime(evt.timeSinceLastFrame);
+			animRunBase->addTime(evt.timeSinceLastFrame);
+			animRunTop->addTime(evt.timeSinceLastFrame);
+			break;
+
+		case Run:		
+			animationRun->addTime(evt.timeSinceLastFrame);
+			animRunBase->addTime(evt.timeSinceLastFrame);
+
+
+			if (animSacarEspadas->hasEnded())
+			{
+				animSacarEspadas->setEnabled(false);
+				animBlandirEspadas->setEnabled(true);
+			}
+
+			if (animSacarEspadas->getEnabled())
+				animSacarEspadas->addTime(evt.timeSinceLastEvent);
+
+			if (animBlandirEspadas->getEnabled())
+				animBlandirEspadas->addTime(evt.timeSinceLastEvent);
+
+			
+
+			if (animationRun->hasEnded())
+			{
+
+				animBlandirEspadas->setEnabled(false);
+				animRunBase->setEnabled(false);
+				animationRun->setEnabled(false);
+				state = Dead;
+				lastState = Run;
+				node->rotate(Ogre::Vector3(1.0f, 0.0f, 0.0f), Ogre::Radian(3.14 / 2));
+				node->rotate(Ogre::Vector3(0.0f, 1.0f, 0.0f), Ogre::Radian(3.14));
+
+				node->translate(Ogre::Vector3(0.0f, -20.0f, 0.0f));
+
+			}
+			break;
+
+		case Dead:
+
+			node->translate(Ogre::Vector3(0.03f, 0.0f, 0.0f));
+			break;
+
+		case Idle:
+			break;
+		}
+
+
+	};
+
+	
 
 
 	void Sinbad::createPatrolAnimation()
@@ -213,34 +269,6 @@ namespace OgreBites {
 		if (key == 'd')
 			node->translate(-1.0f, 0.0f, 0.0f);
 
-		if (key == 'q')
-		{
-			/*
-			if (!espadasSacadas)
-			{
-				animRunTop->setEnabled(false);
-				animSacarEspadas->setEnabled(true);
-				animCerrarManitas->setEnabled(true);
-				//node->getAttachedObject(0)->detachObjectFromBone(espadaEnt2);
-				ent->detachObjectFromBone(espadaEnt1);
-				ent->detachObjectFromBone(espadaEnt2);
-				ent->attachObjectToBone("Handle.L", espadaEnt1);
-				ent->attachObjectToBone("Handle.R", espadaEnt2);
-
-				espadasSacadas = true;
-			}
-			else
-			{
-				ent->detachObjectFromBone(espadaEnt1);
-				ent->detachObjectFromBone(espadaEnt2);
-				ent->attachObjectToBone("Sheath.L", espadaEnt1);
-				ent->attachObjectToBone("Sheath.R", espadaEnt2);
-
-				espadasSacadas = false;
-			}
-			*/
-		}
-
 		return InputListener::keyPressed(evt);
 	}
 	bool Sinbad::mousePicking(const OgreBites::MouseButtonEvent& evt)
@@ -258,6 +286,7 @@ namespace OgreBites {
 			break;
 
 		case Run: //Paso a Idle
+			
 			animationRun->setEnabled(false);
 			animRunBase->setEnabled(false);
 			animRunTop->setEnabled(false);
@@ -277,9 +306,13 @@ namespace OgreBites {
 				break;
 			
 			case Run:
+				animRunTop->setEnabled(false);
+
+				//Slice
+				animBlandirEspadas->setEnabled(true);
 				animationRun->setEnabled(true);
 				animRunBase->setEnabled(true);
-				animRunTop->setEnabled(true);
+				
 				state = Run;
 				lastState = Idle;
 				break;
@@ -291,12 +324,18 @@ namespace OgreBites {
 		return true;
 	}
 
-	void Sinbad::run()
+	void Sinbad::runToBomb()
 	{
 		createRunAnimation();
 
-		animRunBase->setEnabled(true);
-		animRunTop->setEnabled(true);
+
+		ent->detachObjectFromBone(espadaEnt1);
+		ent->attachObjectToBone("Handle.L", espadaEnt1);
+		
+
+		animSacarEspadas->setEnabled(true);
+		animRunTop->setEnabled(false);
+	
 
 		//Asignamos la animaciones creada
 		animationRun = node->getCreator()->createAnimationState("animBomb");

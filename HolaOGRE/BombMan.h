@@ -22,7 +22,7 @@ namespace OgreBites
 			{
 				boom = true;
 				pSys->setEmitting(true);
-				ptrSin->run();
+				ptrSin->runToBomb();
 			}
 			return true;
 		}
