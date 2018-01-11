@@ -38,6 +38,7 @@ protected:
   void createMirror();
   void createKnotFly();
   void createQueries();
+  void createShader();
 
   //Managers
   Ogre::SceneManager* scnMgr = nullptr; //Permite configurar el grafo de la escena: cámaras, luces, entidades. Factoria de varios tipos de objetos. Puede haber más de una instancia en la aplicación
