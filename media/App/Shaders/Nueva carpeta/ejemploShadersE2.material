@@ -13,13 +13,13 @@ material ejemploShadersE2  //cuidado!! Saltar línea
 	 		{ 
 	 		// params 
 	 		}
-	 		texture_unit texture1
+	 		texture_unit texture3
 	 		{
 	 			texture flare.png 2d // archivo
 	 			tex_address_mode clamp
 	 			filtering bilinear
 	 		}
-	 		texture_unit texture2
+	 		texture_unit texture4
 	 		{
 	  			texture RustedMetal.jpg 2d // archivo
 	  			tex_address_mode wrap
