@@ -1,0 +1,29 @@
+
+material ejemploShadersE2  //cuidado!! Saltar línea
+{
+	technique 
+	{
+		pass 
+		{
+	 		vertex_program_ref vertexShaderE2
+	 		{ 
+	 		// params 
+	 		}
+	 		fragment_program_ref fragmentShaderE2
+	 		{ 
+	 		// params 
+	 		}
+	 		texture_unit texture1
+	 		{
+	 			texture flare.png 2d // archivo
+	 			tex_address_mode clamp
+	 			filtering bilinear
+	 		}
+	 		texture_unit texture2
+	 		{
+	  			texture RustedMetal.jpg 2d // archivo
+	  			tex_address_mode wrap
+	 		}	 
+		}
+	}
+}

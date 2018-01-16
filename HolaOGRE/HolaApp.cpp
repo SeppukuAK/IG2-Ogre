@@ -137,7 +137,7 @@ void HolaApp::setupScene(void)
 void HolaApp::createShader(){
 
 	scnMgr->setSkyPlane(true, Plane(Vector3::UNIT_Z, -20),
-		"ejemploMaterial", 1000, 10, true, 1.0, 1, 1);
+		"ejemploShadersE2", 1, 1, true, 1.0, 100, 100);
 	// enable, plane, materialName, scale = 1000, tiling = 10, drawFirst,
 	// bow = 0, xsegments = 1, ysegments = 1, …
 	// RenderQueueGroup ‐> RENDER_QUEUE_SKIES_EARLY
