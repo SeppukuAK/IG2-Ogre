@@ -1,0 +1,259 @@
+Apuntes GLSL
+Los importantes son Vertex Shader y Fragment Shader
+Primero entra Vertex, se hacen cosas y entra el Fragment
+
+
+-----------Ejemplos de .glsl-------------
+
+ Vertex Shader Source ("vertexShader1.glsl")
+
+#versión 330 core
+in vec4 vertex;
+uniform mat4 transMatrix
+out vec4 vColor
+void main(void) {
+	gl_Position = transMatrix * vertex;
+	vColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+
+
+ Fragment Shader Source ("fragmentShader1.glsl")
+
+#versión 330 core
+in vec4 vColor
+out vec4 fFragColor;
+void main(void) {
+	fFragColor = vColor;
+}
+
+-----------Ejemplos de .glsl-------------
+
+-----------Vertex Shader-------------
+
+ Muchos cores especializados que trabajan en paralelo:
+El mismo proceso sobre diferentes datos independientes
+Muchos vertex Processor en paralelos
+Se rasteriza
+Muchos fragment Processor en paralelo
+Fragment sacan los RGBAZ pixels
+
+Vertex Shader:
+-Atributo in: valores para cada vértice
+-Uniform: Constantes de cada ejecución, accesibles desde el fragment shader
+-out: Serán interpolados, es decir son los que salen, hay que darles valor. Saca el color y las coordenadas de textura
+
+Atribuos de entrada:
+in vec4 vertex;   // coordenadas de posición
+in vec3 normal;   // vector normal
+in vec2 uv0;      // coordenadas de textura 0
+
+Atributos de salida:
+// out vec4 gl_Position // predefinida obligatoria
+out vec2 vUv0;   // coordenadas de textura 0
+
+Transformaciones: uniform (constantes del programa)
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projMatrix;
+uniform mat3 normalMatrix;
+uniform mat4 textureMatrix;
+
+Texturas: uniform
+
+Ejemplo:
+transformación y coordenadas de textura
+// “vertexShaderE2glsl.txt”
+
+#version 330 core
+in vec4 vertex;  // atributos de los vértices a procesar
+in vec2 uv0;
+uniform mat4 modelViewProjMat; // constantes de programa
+out vec2 vUv0; // out del vertex shader
+void main() {
+	vUv0 = uv0;
+	gl_Position = modelViewProjMat * vertex; // obligatorio
+}
+-----------Vertex Shader-------------
+
+
+-----------Fragment Shader-------------
+
+El proceso de pasar vertices a fragmentos es rasterizar.
+Accede a información y el color es de salida
+
+Los out del vertex Shader son in en el fragment(valores para cada fragmento):
+-Fragment position e input variables
+
+Uniform. También son accesibles en el fragment shader
+
+Out: Operaciones por fragmento. Saca el color de los fragmentos y la profundidas de los fragmentos
+
+Variables:
+
+Atribuos de entrada:
+// in vec4 gl_FragCoord // predefinida asociada a gl_Position (out del VS)
+in vec2 vUv0;   // en el vertex Shader: out vec2 vUv0;
+
+Atributos de salida:
+out vec4 fFragColor;  // en versiones anteriores // predefinida gl_FragColor
+
+Uniform:
+uniform float intLuz;
+uniform sampler2D colorTex; //Texturas
+
+Ejemplo:
+
+GLSL Fragment Shader: mezcla de texturas
+// “fragmentShaderE2glsl.txt”
+
+#version 330 core
+uniform sampler2D textura1;    
+uniform sampler2D textura2;  
+uniform float FB;
+uniform float intLuz;
+in vec2 vUv0; // out del vertex shader
+out vec4 fFragColor; // out del fragment shader
+void main() {
+	vec3 color1 = vec3(texture2D(textura1, vUv0)) * intLuz;
+	vec3 color2 = vec3(texture2D(textura2, vUv0));
+	vec3 color = mix(color1, color2, FB); //(1‐FB).C1+FB.C2
+	fFragColor = vec4(color, 1.0);
+}
+-----------Fragment Shader-------------
+
+
+--------------OGRE: GPU Programs----------------
+ OGRE realiza todas las tareas referentes a la compilación, enlace y
+carga de los shaders que vayamos a utilizar para renderizar objetos
+de la escena.
+ El gestor de recursos se encarga de analizar los archivos con el
+código fuente de los shaders.
+ También nos permite establecer valores por defecto para las
+constantes uniform.
+ En el script del material se especifican el shader de vértices, el
+shader de fragmentos, y los valores iniciales para las uniform.
+Cada vez que se ejecute el programa se pasarán al programa los
+valores especificados actualizados.
+
+ Ejemplo: archivo “ejemploShadersE2.material" ->
+
+vertex_program vertexShaderE2 glsl
+{
+	source vertexShaderE2glsl.txt   // archivo
+	default_params // valores para las variable uniform
+	{
+		param_named_auto modelViewProjMat worldviewproj_matrix
+	}
+}
+
+fragment_program fragmentShaderE2 glsl
+{
+	source fragmentShaderE2glsl.txt // archivo
+	default_params // valores para las variable uniform
+	{
+		param_named textura1 int 0 // unidad de textura
+		param_named textura2 int 1
+		//param_named FB float 0.5
+		param_named_auto FB time_0_1 10 //Para utilizar time
+		param_named intLuz float 1.0;
+	}
+}
+
+material ejemploShadersE2 {  // cuidado!! Saltar línea
+	technique {
+		pass {
+			vertex_program_ref vertexShaderE2
+			{  // params }
+				fragment_program_ref fragmentShaderE2
+			{  // params }
+			texture_unit texture1  
+			{   
+				texture ejemplo1.jpg 2d // archivo
+				tex_address_mode clamp
+				filtering bilinear
+			}
+			texture_unit texture2 
+			{
+				texture ejemplo2.jpg 2d // archivo
+				tex_address_mode wrap
+			}
+		}  
+	}  
+}
+
+ https://ogrecave.github.io/ogre/api/1.10/High-level-Programs.html#Program-Parameter-Specification
+
+
+  Podemos utilizar time para los valores uniform
+param_named_auto tiempoA time  // ??
+param_named_auto tiempoE time_0_1 1 // [0, 1] ciclo 1
+param_named_auto tiempoD sintime_0_1 50  // ciclo 50
+
+--------------OGRE: GPU Programs----------------
+
+--------------OGRE: SkyPlane----------------
+
+scnMgr -> setSkyPlane(true, Plane(Vector3::UNIT_Z, -20),
+"ejemploShadersE2", 1, 1, true, 0.0, 100, 100);
+// enable, plane, materialName, scale = 1000, tiling = 10, drawFirst,
+// bow = 0, xsegments = 1, ysegments = 1, …
+// RenderQueueGroup ‐> RENDER_QUEUE_SKIES_EARLY
+scnMgr -> setSkyBox(true, “material", ……);
+scnMgr -> setSkyDome(true, “material", ……)
+
+--------------OGRE: SkyPlane----------------
+
+------------------------------GLSL--------------------------------
+ C-like language
+	 Restringido en algunos aspectos (char, punteros, recursión) y
+	aumentado para el uso de gráficos (vectores, matrices)
+	 Un shader empieza con una declaración de versión, seguida por
+	la declaración de variables in/out y uniforms, y termina con la
+	función main().
+	 Se pueden definir funciones. Los parámetros se declaran in/out.
+	 Vertex shader: las variables in se corresponden con los
+	atributos de los vértices, y las variables out con los valores
+	interpolables (varying)
+	 Las variables se declaran especificando su tipo
+	 Fragment Shader: las variables in se tienen que corresponder
+	con variables out del vertex Shader.
+	 En el fragment shader se puede desechar un píxel con discard
+
+ Tipos de datos
+	 Básicos: float, int, bool, double, uint
+	 Vectores(XvecN): vecN para float, ivecN para int, bvecN para bool, …
+	Se accede a los campos con .x, .y, .z, .w, .xy, .xyz, .s, .t, .rbg, …
+	 Matrices: matN para matrices de N (2,3,4) float
+	 Samplers: samplerND, sampler2D (para texturas 2d)
+	 Registros: struct, se accede a los campos con punto
+		struct vertice { vec4 posicion; vec3 color; }
+		vertice v; v.posicion = vec4(0,1.5,0,1); v.color = vec3(1,1,1);
+		v.posicion.x = v.posicion.y+1;
+	 Arrays: vertice av[N]; 
+
+ Visibilidad de las variables:
+	 Función
+	 Shader (de vértices o de fragmentos)
+	 Programa: por todos los shader (de vértices y de fragmentos)
+ Calificadores de tipo:
+	 const
+	 in: para atributos de vértice en VBO, o para recoger información
+	entre los shaders.
+	 out: para pasar información entre los shaders.
+	 uniform: para pasar datos de CPU a GPU al programa.
+	Son constantes
+	uniform para texturas: sampler2D, sampler3D, sampler1D
+	 buffer: para pasar datos de CPU a GPU y viceversa (OpenGL 4.3)
+
+	 Definición de funciones
+		 Parámetros: in, out, inout (todos por copia)
+	 Operadores aritméticos y funciones predefinidas
+	 Instrucciones de control:
+		 if, if-else
+		 for, while, do-while
+	 Variables especiales (por shader):
+		 Input: gl_FrontFacing, gl_FragCoord (fragment shader)
+		 Output: gl_Position, gl_PointSize (vertex shader)
+	 Consultas:
+		 gl_MaxTextureImageUnits
+------------------------------GLSL--------------------------------
