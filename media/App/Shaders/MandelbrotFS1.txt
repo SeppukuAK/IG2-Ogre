@@ -1,12 +1,14 @@
 #version 330 core
 
 in vec2 vUv0; // out del vertex shader
+in vec2 vUv1; // out del vertex shader
 
 uniform vec4 InColor;
 uniform vec4 OutColor1;
 uniform vec4 OutColor2;
 
 uniform sampler2D textura1;
+uniform float tiempoD;
 
 const int MaxIter = 500;
 
@@ -17,12 +19,15 @@ void main(){
 //Traslación:Cr = Cr -1.5
 //Zoom : Cr *= 0.5 Ci *= 0.5
 
-	//Color de la textura
-	vec3 colorAuxText = vec3(texture2D(textura1, vUv0));
-	vec4 colorText = vec4(colorAuxText, 1.0);
+	
+	float Creal = vUv0.s-1.8; //traslacion
 
-	float Creal = vUv0.s - 1.5; //traslacion
 	float Cimag = vUv0.t;
+
+	//Zoom
+	Creal = Creal* (7.0/8.0 + tiempoD/8.0);
+	Cimag = Cimag*(7.0/8.0 + tiempoD/8.0);
+
 	float real = Creal; //Zr
 	float imag = Cimag; // Zi
 	float z2 = 0.0; // Z*Z
@@ -40,9 +45,13 @@ void main(){
 
 	//Si no pertenece a Mandelbrot
 	if(z2 > 4.0)
-		color = mix(OutColor1, OutColor2, fract(float(iter) * 0.04));
+		color = mix(OutColor1, OutColor2, fract(float(iter) * tiempoD));
 											//fract(float(iter)/25.0)
 
-	 //color = vec4(colorText.x * color.x,colorText.y * color.y,colorText.z * color.z,colorText.w * color.w);
-     fFragColor = vec4(color);
+	//Color de la textura
+	vec3 colorAuxText = vec3(texture2D(textura1, vUv1));
+	vec4 colorText = vec4(colorAuxText, 1.0);
+
+	color = color * colorText;
+    fFragColor = vec4(color);
 }
