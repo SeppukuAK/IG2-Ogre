@@ -9,6 +9,7 @@ uniform vec4 OutColor2;
 
 uniform sampler2D textura1;
 uniform float tiempoD;
+uniform float FB;
 
 const int MaxIter = 500;
 
@@ -20,13 +21,12 @@ void main(){
 //Zoom : Cr *= 0.5 Ci *= 0.5
 
 	
-	float Creal = vUv0.s-1.8; //traslacion
-
+	float Creal = (vUv0.s-1.78); //traslacion
 	float Cimag = vUv0.t;
 
 	//Zoom
-	Creal = Creal* (7.0/8.0 + tiempoD/8.0);
-	Cimag = Cimag*(7.0/8.0 + tiempoD/8.0);
+	Creal = Creal* (1- 1/FB) - (1/FB)*1.78;
+	Cimag = Cimag*(1-1/FB);
 
 	float real = Creal; //Zr
 	float imag = Cimag; // Zi
@@ -45,7 +45,7 @@ void main(){
 
 	//Si no pertenece a Mandelbrot
 	if(z2 > 4.0)
-		color = mix(OutColor1, OutColor2, fract(float(iter) * tiempoD));
+		color = mix(OutColor1, OutColor2, fract(float(iter)*FB));
 											//fract(float(iter)/25.0)
 
 	//Color de la textura
